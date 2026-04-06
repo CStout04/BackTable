@@ -9,3 +9,7 @@ body {
 #menu {
     margin-top: 100px;
 }
+
+.difficulty {
+    display: none;
+}
