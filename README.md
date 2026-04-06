@@ -29,7 +29,7 @@
 BackTable/
 ├── index.html        # Main game file
 ├── style.css         # Styling
-├── script.js         # Game logic
+├── main.js         # Game logic
 ├── assets/
 │   ├── player.png    # Player sprite
 │   ├── obstacle.png  # Obstacle sprites
