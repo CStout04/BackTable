@@ -25,3 +25,14 @@ document.addEventListener("keydown", function (event) {
     event.preventDefault();
     startGame();
 });
+
+// Jump input handling (input only, no movement yet)
+document.addEventListener("keydown", function (event) {
+    const isJumpKey = event.code === "Space" || event.code === "ArrowUp";
+
+    if (!isJumpKey || !gameStarted) {
+        return;
+    }
+
+    console.log("Jump triggered"); // placeholder for now
+});
