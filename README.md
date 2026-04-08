@@ -27,12 +27,13 @@
 
 ```
 BackTable/
-├── index.html        # Main game file
-├── style.css         # Styling
-├── main.js         # Game logic
+├── index.html               # Main game file
+├── style.css                # Styling
+├── js/
+│   └── game_start.js        # Game logic
 ├── assets/
-│   ├── player.png    # Player sprite
-│   ├── obstacle.png  # Obstacle sprites
+│   ├── Sprinter Bucky.png   # Player sprite
+│   ├── obstacle.png         # Obstacle sprites
 │   └── background.png
 └── README.md
 ```
