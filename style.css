@@ -13,3 +13,8 @@ body {
 .difficulty {
     display: none;
 }
+
+img {
+    width: 125px;
+    display: none;
+}
