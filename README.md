@@ -31,7 +31,7 @@ BackTable/
 ├── style.css                # Styling
 ├── js/
 │   └── game_start.js        # Game logic
-├── assets/
+├── Images/
 │   ├── Sprinter Bucky.png   # Player sprite
 │   ├── obstacle.png         # Obstacle sprites
 │   └── background.png
