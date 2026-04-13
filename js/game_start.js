@@ -51,5 +51,27 @@ document.addEventListener("keydown", function (event) {
     setTimeout(() => {
         isJumping = false;
     }, 800);
+});
+    // Crouch function (Non-functional yet)
+function crouch(isCrouching) {
+    console.log("Crouch:", isCrouching);
+}
 
+// Crouch key handling (ArrowDown + Shift)
+document.addEventListener("keydown", function (event) {
+    const isCrouchKey = event.code === "ArrowDown" || event.code === "ShiftLeft" || event.code === "ShiftRight";
+
+    if (!isCrouchKey || !gameStarted) return;
+
+    event.preventDefault();
+    crouch(true);
+});
+
+document.addEventListener("keyup", function (event) {
+    const isCrouchKey = event.code === "ArrowDown" || event.code === "ShiftLeft" || event.code === "ShiftRight";
+
+    if (!isCrouchKey || !gameStarted) return;
+
+    event.preventDefault();
+    crouch(false);
 });
