@@ -1,6 +1,6 @@
 # Sprinter
 
-*A fast-paced ETSU-themed browser game inspired by the Chrome Dinosaur*
+*A fast-paced ETSU-themed browser game inspired by the Chrome Dinosaur Game*
 
 ## Overview
 
