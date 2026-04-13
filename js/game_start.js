@@ -52,5 +52,4 @@ document.addEventListener("keydown", function (event) {
         isJumping = false;
     }, 800);
 
-    //console.log("Jump triggered");
 });
