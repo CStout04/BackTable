@@ -1,11 +1,37 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>index</title>
+  <meta charset="UTF-8">
+  <title>Sprinter</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    
+
+  <!-- Main Menu Screen -->
+  <div id="menu">
+    <h1>Sprinter</h1>
+
+    <div class="controls" id="controls">
+      <p><strong>Controls:</strong></p>
+      <p class="subtitle">Tap / Space / Up Arrow to jump • Swipe down / Down Arrow to duck</p>
+    </div>
+
+    <div class="difficulty-group">
+      <label for="difficultySelect"><strong>Select Difficulty:</strong></label>
+      <select id="difficultySelect" name="difficulty">
+        <option value="normal">Normal</option>
+      </select>
+    </div>
+
+    <p class="start-text" id="startText">Press SPACE or UP ARROW to Start</p>
+  </div>
+
+  <!-- Game screen (hidden until game starts) -->
+  <main id="gameScreen" style="display: none; position: relative;">
+    <h2>Sprinter</h2>
+    <img src="images/Sprinter Bucky.png" alt="Sprinter Bucky" id="Bucky">
+  </main>
+
+  <script src="js/game_start.js"></script>
 </body>
 </html>

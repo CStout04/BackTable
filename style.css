@@ -1,0 +1,39 @@
+body {
+    margin: 0;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    background-color: #111;
+    color: white;
+}
+
+#menu {
+    margin-top: 100px;
+}
+
+.difficulty {
+    display: none;
+}
+
+img {
+    width: 125px;
+}
+
+#gameScreen {
+    position: relative;
+    height: 100vh;
+}
+
+#gameScreen img {
+    position: absolute;
+    left: 30%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 125px;
+}
+
+#Bucky {
+    position: absolute;
+    padding-bottom: 0px;
+    left: 50px;
+    transition: padding-bottom .5s ease-out;
+}
