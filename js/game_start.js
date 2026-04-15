@@ -6,6 +6,18 @@ let gameStarted = false;
 let isJumping = false;
 let isCrouching = false;
 let ignoreFirstJump = true;
+let bgPosition = 0;
+let bgSpeed = 3;
+let bgInterval;
+
+function startBackgroundScroll() {
+    const background = document.getElementById("background");
+
+    bgInterval = setInterval(() => {
+        bgPosition -= bgSpeed;
+        background.style.backgroundPositionX = bgPosition + "px";
+    }, 16); // ~60 FPS
+}
 
 // Image paths
 const STANDING_IMAGE = "images/Sprinter Bucky.png";
@@ -25,7 +37,7 @@ function startGame() {
     gameStarted = true;
     menu.style.display = "none";
     gameScreen.style.display = "block";
-
+    startBackgroundScroll();
     requestAnimationFrame(gameLoop);
 }
 
