@@ -33,7 +33,6 @@ img {
 
 #Bucky {
     position: absolute;
-    padding-bottom: 0px;
     left: 50px;
-    transition: padding-bottom .5s ease-out;
+    transform: translateY(0px);
 }
