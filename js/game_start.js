@@ -6,6 +6,13 @@ let gameStarted = false;
 let isJumping = false;
 let ignoreFirstJump = true;
 
+// Physics values
+let velocityY = 0;
+const GRAVITY = 0.3;
+const JUMP_VELOCITY = 12.0;
+const FALL_MULTIPLIER = 1.0;
+let positionY = 0;
+
 // Start game
 function startGame() {
     if (gameStarted) return;
@@ -13,6 +20,8 @@ function startGame() {
     gameStarted = true;
     menu.style.display = "none";
     gameScreen.style.display = "block";
+
+    requestAnimationFrame(gameLoop);
 }
 
 // Start key
@@ -25,11 +34,10 @@ document.addEventListener("keydown", function (event) {
     startGame();
 });
 
-// Jump logic
+// Jump key
 document.addEventListener("keydown", function (event) {
     const isJumpKey = event.code === "Space" || event.code === "ArrowUp";
 
-    // Ignores first jump to avoid jumping right when screen changes for gameStart.
     if (ignoreFirstJump) {
         ignoreFirstJump = false;
         return;
@@ -38,40 +46,33 @@ document.addEventListener("keydown", function (event) {
     if (!isJumpKey || !gameStarted || isJumping) return;
 
     isJumping = true;
-    
-    // Jump up
-    charStart.style.paddingBottom = "200px";
-    
-    // Fall back down after a delay
-    setTimeout(() => {
-        charStart.style.paddingBottom = "0px";
-    }, 500);
-
-    // Reset jump state after landing
-    setTimeout(() => {
-        isJumping = false;
-    }, 800);
+    velocityY = JUMP_VELOCITY;
 });
-    // Crouch function (Non-functional yet)
-function crouch(isCrouching) {
-    console.log("Crouch:", isCrouching);
+
+// Game loop (runs every frame)
+function gameLoop() {
+    updatePhysics();
+    requestAnimationFrame(gameLoop);
 }
 
-// Crouch key handling (ArrowDown + Shift)
-document.addEventListener("keydown", function (event) {
-    const isCrouchKey = event.code === "ArrowDown" || event.code === "ShiftLeft" || event.code === "ShiftRight";
+// Physics update
+function updatePhysics() {
+    // Apply gravity
+    if (velocityY > 0) {
+        velocityY -= GRAVITY; // going up
+    } else {
+        velocityY -= GRAVITY * FALL_MULTIPLIER; // faster fall
+    }
 
-    if (!isCrouchKey || !gameStarted) return;
+    positionY += velocityY;
 
-    event.preventDefault();
-    crouch(true);
-});
+    // Ground collision
+    if (positionY <= 0) {
+        positionY = 0;
+        velocityY = 0;
+        isJumping = false;
+    }
 
-document.addEventListener("keyup", function (event) {
-    const isCrouchKey = event.code === "ArrowDown" || event.code === "ShiftLeft" || event.code === "ShiftRight";
-
-    if (!isCrouchKey || !gameStarted) return;
-
-    event.preventDefault();
-    crouch(false);
-});
+    // Apply movement
+    charStart.style.transform = `translateY(${-positionY}px)`;
+}
