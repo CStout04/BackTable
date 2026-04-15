@@ -5,6 +5,18 @@ const charStart = document.getElementById("Bucky");
 let gameStarted = false;
 let isJumping = false;
 let ignoreFirstJump = true;
+let bgPosition = 0;
+let bgSpeed = 3;
+let bgInterval;
+
+function startBackgroundScroll() {
+    const background = document.getElementById("background");
+
+    bgInterval = setInterval(() => {
+        bgPosition -= bgSpeed;
+        background.style.backgroundPositionX = bgPosition + "px";
+    }, 16); // ~60 FPS
+}
 
 // Start game
 function startGame() {
@@ -13,6 +25,7 @@ function startGame() {
     gameStarted = true;
     menu.style.display = "none";
     gameScreen.style.display = "block";
+    startBackgroundScroll();
 }
 
 // Start key
@@ -52,4 +65,6 @@ document.addEventListener("keydown", function (event) {
         isJumping = false;
     }, 800);
 
+    //console.log("Jump triggered");
 });
+
