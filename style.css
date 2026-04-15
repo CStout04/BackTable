@@ -34,6 +34,8 @@ img {
 
 #Bucky {
     position: absolute;
+    left: 50px;
+    transform: translateY(0px);
     padding-bottom: 0px;
     padding-top: 100px;
     left: 50px;
