@@ -4,7 +4,12 @@ const charStart = document.getElementById("Bucky");
 
 let gameStarted = false;
 let isJumping = false;
+let isCrouching = false;
 let ignoreFirstJump = true;
+
+// Image paths
+const STANDING_IMAGE = "images/Sprinter Bucky.png";
+const CROUCH_IMAGE = "images/Crouched_Sprinter_Bucky.png";
 
 // Physics values
 let velocityY = 0;
@@ -24,6 +29,14 @@ function startGame() {
     requestAnimationFrame(gameLoop);
 }
 
+function setStandingSprite() {
+    charStart.src = STANDING_IMAGE;
+}
+
+function setCrouchSprite() {
+    charStart.src = CROUCH_IMAGE;
+}
+
 // Start key
 document.addEventListener("keydown", function (event) {
     const isStartKey = event.code === "Space" || event.code === "ArrowUp";
@@ -38,25 +51,40 @@ document.addEventListener("keydown", function (event) {
 document.addEventListener("keydown", function (event) {
     const isJumpKey = event.code === "Space" || event.code === "ArrowUp";
 
-    if (ignoreFirstJump) {
+    if (ignoreFirstJump && isJumpKey) {
         ignoreFirstJump = false;
         return;
     }
 
-    if (!isJumpKey || !gameStarted || isJumping) return;
+    // Prevent jumping while crouching
+    if (!isJumpKey || !gameStarted || isJumping || isCrouching) return;
 
+    event.preventDefault();
     isJumping = true;
     velocityY = JUMP_VELOCITY;
+    setStandingSprite();
 });
 
-// Crouch function (Non-functional yet)
-function crouch(isCrouching) {
-    console.log("Crouch:", isCrouching);
+// Crouch function
+function crouch(crouching) {
+    // Prevent crouching while jumping
+    if (isJumping) return;
+
+    isCrouching = crouching;
+
+    if (isCrouching) {
+        setCrouchSprite();
+    } else {
+        setStandingSprite();
+    }
 }
 
 // Crouch key handling (ArrowDown + Shift)
 document.addEventListener("keydown", function (event) {
-    const isCrouchKey = event.code === "ArrowDown" || event.code === "ShiftLeft" || event.code === "ShiftRight";
+    const isCrouchKey =
+        event.code === "ArrowDown" ||
+        event.code === "ShiftLeft" ||
+        event.code === "ShiftRight";
 
     if (!isCrouchKey || !gameStarted) return;
 
@@ -65,7 +93,10 @@ document.addEventListener("keydown", function (event) {
 });
 
 document.addEventListener("keyup", function (event) {
-    const isCrouchKey = event.code === "ArrowDown" || event.code === "ShiftLeft" || event.code === "ShiftRight";
+    const isCrouchKey =
+        event.code === "ArrowDown" ||
+        event.code === "ShiftLeft" ||
+        event.code === "ShiftRight";
 
     if (!isCrouchKey || !gameStarted) return;
 
@@ -81,20 +112,28 @@ function gameLoop() {
 
 // Physics update
 function updatePhysics() {
-    // Apply gravity
-    if (velocityY > 0) {
-        velocityY -= GRAVITY; // going up
-    } else {
-        velocityY -= GRAVITY * FALL_MULTIPLIER; // faster fall
-    }
+    // Apply gravity only while jumping
+    if (isJumping) {
+        if (velocityY > 0) {
+            velocityY -= GRAVITY; // going up
+        } else {
+            velocityY -= GRAVITY * FALL_MULTIPLIER; // faster fall
+        }
 
-    positionY += velocityY;
+        positionY += velocityY;
 
-    // Ground collision
-    if (positionY <= 0) {
-        positionY = 0;
-        velocityY = 0;
-        isJumping = false;
+        // Ground collision
+        if (positionY <= 0) {
+            positionY = 0;
+            velocityY = 0;
+            isJumping = false;
+
+            if (isCrouching) {
+                setCrouchSprite();
+            } else {
+                setStandingSprite();
+            }
+        }
     }
 
     // Apply movement
