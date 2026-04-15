@@ -49,8 +49,7 @@ document.addEventListener("keydown", function (event) {
     velocityY = JUMP_VELOCITY;
 });
 
-});
-    // Crouch function (Non-functional yet)
+// Crouch function (Non-functional yet)
 function crouch(isCrouching) {
     console.log("Crouch:", isCrouching);
 }
