@@ -25,10 +25,11 @@ const CROUCH_IMAGE = "images/Crouched_Sprinter_Bucky.png";
 
 // Physics values
 let velocityY = 0;
-const GRAVITY = 0.3;
-const JUMP_VELOCITY = 12.0;
-const FALL_MULTIPLIER = 1.0;
+const GRAVITY = 1400; // pixels per second squared
+const JUMP_VELOCITY = 700; // pixels per second
+const FALL_MULTIPLIER = 2.0;
 let positionY = 0;
+let lastTime = 0;
 
 // Start game
 function startGame() {
@@ -117,22 +118,29 @@ document.addEventListener("keyup", function (event) {
 });
 
 // Game loop (runs every frame)
-function gameLoop() {
-    updatePhysics();
+function gameLoop(timestamp) {
+    if (!lastTime) {
+        lastTime = timestamp;
+    }
+
+    const deltaTime = Math.min((timestamp - lastTime) / 1000, 0.05);
+    lastTime = timestamp;
+
+    updatePhysics(deltaTime);
     requestAnimationFrame(gameLoop);
 }
 
 // Physics update
-function updatePhysics() {
+function updatePhysics(deltaTime) {
     // Apply gravity only while jumping
     if (isJumping) {
         if (velocityY > 0) {
-            velocityY -= GRAVITY; // going up
+            velocityY -= GRAVITY * deltaTime; // going up
         } else {
-            velocityY -= GRAVITY * FALL_MULTIPLIER; // faster fall
+            velocityY -= GRAVITY * FALL_MULTIPLIER * deltaTime; // falling
         }
 
-        positionY += velocityY;
+        positionY += velocityY * deltaTime;
 
         // Ground collision
         if (positionY <= 0) {
