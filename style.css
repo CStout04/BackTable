@@ -2,18 +2,100 @@ body {
     margin: 0;
     text-align: center;
     font-family: Arial, sans-serif;
-    background-color: #111;
     color: white;
     overflow: hidden;
+
+
+    background: linear-gradient(180deg, #041E42 0%, #02142b 100%);
 }
 
 #menu {
-    margin-top: 100px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    background: rgba(0, 0, 0, 0.65);
+    padding: 50px 70px;
+    border-radius: 14px;
+
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+    border: 2px solid #FFC72C;
+
+    text-align: center;
+}
+
+/* ETSU Logo */
+#etsuLogo {
+    width: 110px;
+    margin-bottom: 15px;
+}
+
+/* Title */
+#menu h1 {
+    margin-bottom: 10px;
+    font-size: 42px;
+    color: #FFC72C; /* ETSU Gold */
+}
+
+/* Subtitle */
+#menu p {
+    margin-bottom: 30px;
+    font-size: 16px;
+    color: #ddd;
+}
+
+/* Controls section */
+#menu .controls {
+    margin: 20px 0;
+}
+
+#menu .subtitle {
+    font-size: 14px;
+    color: #ccc;
+}
+
+/* Dropdown styling */
+#menu select {
+    margin-top: 10px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+}
+
+/* Start text emphasis */
+.start-text {
+    margin-top: 25px;
+    font-size: 16px;
+    color: #FFC72C;
+    font-weight: bold;
+}
+
+/* Start Button */
+#startBtn {
+    background-color: #FFC72C;
+    color: #041E42;
+    border: none;
+    padding: 14px 30px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+}
+
+/* Hover effect */
+#startBtn:hover {
+    background-color: #e6b800;
+    transform: scale(1.05);
 }
 
 .difficulty {
     display: none;
 }
+
 
 img {
     width: 125px;
