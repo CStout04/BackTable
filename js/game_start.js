@@ -9,6 +9,8 @@ let ignoreFirstJump = true;
 let bgPosition = 0;
 let bgSpeed = 3;
 let bgInterval;
+let randTime = 0;
+let randSpawnMax = 250; // Sets max number for random value for obstacle spawn (Higher number = slower spawn rate)
 
 function startBackgroundScroll() {
     const background = document.getElementById("background");
@@ -91,6 +93,28 @@ function crouch(crouching) {
     }
 }
 
+function spawnObstacles() {
+    if (randTime == 7) {
+        console.log("Spawned Top Cannonball");
+        const topObj = document.createElement("img");
+
+        topObj.src = "images/Cannonball obstacle.png";
+        topObj.alt = "Top Cannonball";
+        topObj.id = "topCannonball";
+        gameScreen.appendChild(topObj);
+    }
+    else if (randTime == 10) {
+        console.log("Spawned Bottom Cannonball");
+        const topObj = document.createElement("img");
+
+        topObj.src = "images/Cannonball obstacle.png";
+        topObj.alt = "Bottom Cannonball";
+        topObj.id = "bottomCannonball";
+        gameScreen.appendChild(topObj);
+    }
+
+}
+
 // Crouch key handling (ArrowDown + Shift)
 document.addEventListener("keydown", function (event) {
     const isCrouchKey =
@@ -118,6 +142,9 @@ document.addEventListener("keyup", function (event) {
 
 // Game loop (runs every frame)
 function gameLoop() {
+    randTime = Math.floor((Math.random() * randSpawnMax) + 1);
+    // console.log(randTime);
+    spawnObstacles();
     updatePhysics();
     requestAnimationFrame(gameLoop);
 }
