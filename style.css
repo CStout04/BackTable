@@ -28,7 +28,7 @@ img {
     position: absolute;
     left: 30%;
     top: 50%;
-    transform: translate(-50%, -50%);
+    /* transform: translate(-50%, -50%); */
     width: 125px;
 }
 
@@ -36,9 +36,19 @@ img {
     position: absolute;
     left: 50px;
     transform: translateY(0px);
-    padding-bottom: 0px;
-    left: 50px;
     transition: padding-bottom .5s ease-out;
+}
+
+#bottomCannonball {
+    position: relative;
+    /* display: none; */
+    transform: translate(650%, 100%);
+}
+
+#topCannonball {
+    position: absolute;
+    /* display: none; */
+    transform: translate(650%, 10%);
 }
 
 #background {
