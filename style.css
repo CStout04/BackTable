@@ -4,6 +4,7 @@ body {
     font-family: Arial, sans-serif;
     background-color: #111;
     color: white;
+    overflow: hidden;
 }
 
 #menu {
@@ -33,7 +34,23 @@ img {
 
 #Bucky {
     position: absolute;
+    left: 50px;
+    transform: translateY(0px);
     padding-bottom: 0px;
     left: 50px;
     transition: padding-bottom .5s ease-out;
+}
+
+#background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%; /* important for looping */
+    height: 103%;
+    background-image: url("images/XXLQ4.jpg"); /* use your image */
+    background-repeat: repeat-x;
+    background-size: cover;
+
+    z-index: 0;
 }
