@@ -48,7 +48,7 @@ img {
     right: 0;
     width: 100%; /* important for looping */
     height: 103%;
-    background-image: url("/CSCI\ 4250\ Project/images/XXLQ4.jpg"); /* use your image */
+    background-image: url("images/XXLQ4.jpg"); /* use your image */
     background-repeat: repeat-x;
     background-size: cover;
 
