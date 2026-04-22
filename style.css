@@ -114,14 +114,9 @@ img {
     width: 125px;
 }
 
-#Bucky {
-    position: absolute;
-    left: 50px;
-    transform: translateY(0px);
-    padding-bottom: 0px;
-    left: 50px;
-    transition: padding-bottom .5s ease-out;
-}
+/* #Bucky {
+
+} */
 
 #background {
     position: absolute;
@@ -132,7 +127,17 @@ img {
     height: 103%;
     background-image: url("images/XXLQ4.jpg"); /* use your image */
     background-repeat: repeat-x;
-    background-size: cover;
+    background-size: 140rem;
 
     z-index: 0;
+}
+
+h2 {
+    color: #FFC72C;
+    font-weight: bold;
+    background-color: #041E42;
+    margin: 0;
+    padding: 0;
+    padding-top: .5rem;
+    padding-bottom: .5rem;
 }
