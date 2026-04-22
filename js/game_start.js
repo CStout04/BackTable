@@ -10,7 +10,11 @@ let bgPosition = 0;
 let bgSpeed = 3;
 let bgInterval;
 let randTime = 0;
-let randSpawnMax = 250; // Sets max number for random value for obstacle spawn (Higher number = slower spawn rate)
+let randSpawnMax = 800; // Sets max number for random value for obstacle spawn (Higher number = slower spawn rate)
+
+// Obstacle tracking
+let activeObstacles = []; // Each entry: { el, x }
+const OBSTACLE_SPEED = 300; // pixels per second (tweak to match bgSpeed feel)
 
 function startBackgroundScroll() {
     const background = document.getElementById("background");
@@ -94,26 +98,59 @@ function crouch(crouching) {
     }
 }
 
+// Helper: create and register an obstacle element
+function createObstacle(id, alt, bottomOffset) {
+    const el = document.createElement("img");
+    el.src = "images/Cannonball obstacle.png";
+    el.alt = alt;
+    el.id = id;
+
+    // Position off-screen to the right
+    const startX = gameScreen.offsetWidth;
+    el.style.position = "absolute";
+    el.style.right = "auto";
+    el.style.bottom = bottomOffset;
+    el.style.left = startX + "px";
+
+    gameScreen.appendChild(el);
+
+    // Track it
+    activeObstacles.push({ el, x: startX });
+}
+
 function spawnObstacles() {
     if (randTime == 7) {
         console.log("Spawned Top Cannonball");
-        const topObj = document.createElement("img");
-
-        topObj.src = "images/Cannonball obstacle.png";
-        topObj.alt = "Top Cannonball";
-        topObj.id = "topCannonball";
-        gameScreen.appendChild(topObj);
+        // "Top" cannonball — higher up (duck to avoid)
+        createObstacle("topCannonball", "Top Cannonball", "80px");
     }
     else if (randTime == 10) {
         console.log("Spawned Bottom Cannonball");
-        const topObj = document.createElement("img");
-
-        topObj.src = "images/Cannonball obstacle.png";
-        topObj.alt = "Bottom Cannonball";
-        topObj.id = "bottomCannonball";
-        gameScreen.appendChild(topObj);
+        // "Bottom" cannonball — ground level (jump to avoid)
+        createObstacle("bottomCannonball", "Bottom Cannonball", "0px");
     }
+}
 
+// Move all active obstacles left; remove any that have scrolled off screen
+function updateObstacles(deltaTime) {
+    const moveAmount = OBSTACLE_SPEED * deltaTime;
+
+    for (let i = activeObstacles.length - 1; i >= 0; i--) {
+        const obstacle = activeObstacles[i];
+        obstacle.x -= moveAmount;
+        obstacle.el.style.left = obstacle.x + "px";
+
+        /*
+        // Remove once fully off the left edge.
+        // offsetWidth can be 0 before the image loads, so fall back to 64px
+        // to prevent the obstacle being deleted prematurely.
+         const elWidth = obstacle.el.offsetWidth || 64;
+         if (obstacle.x + elWidth < 0) {
+             obstacle.el.remove();
+             activeObstacles.splice(i, 1);
+         }
+        */
+    }
 }
 
 // Crouch key handling (ArrowDown + Shift)
@@ -151,8 +188,8 @@ function gameLoop(timestamp) {
     lastTime = timestamp;
     
     randTime = Math.floor((Math.random() * randSpawnMax) + 1);
-    // console.log(randTime);
     spawnObstacles();
+    updateObstacles(deltaTime);
     updatePhysics(deltaTime);
     requestAnimationFrame(gameLoop);
 }
