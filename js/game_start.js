@@ -142,16 +142,15 @@ function updateObstacles(deltaTime) {
         obstacle.x -= moveAmount;
         obstacle.el.style.left = obstacle.x + "px";
 
-        /*
         // Remove once fully off the left edge.
         // offsetWidth can be 0 before the image loads, so fall back to 64px
         // to prevent the obstacle being deleted prematurely.
          const elWidth = obstacle.el.offsetWidth || 64;
-         if (obstacle.x + elWidth < 0) {
+         if (obstacle.x + elWidth < -1000) {
              obstacle.el.remove();
+             console.log(obstacle + " removed!");
              activeObstacles.splice(i, 1);
          }
-        */
     }
 }
 
