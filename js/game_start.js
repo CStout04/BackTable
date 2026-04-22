@@ -9,6 +9,11 @@ let ignoreFirstJump = true;
 let bgPosition = 0;
 let bgSpeed = 3;
 let bgInterval;
+let spawnTimer = 0;
+
+// Obstacle tracking
+let activeObstacles = []; // Each entry: { el, x }
+const OBSTACLE_SPEED = 300; // pixels per second (tweak to match bgSpeed feel)
 
 function startBackgroundScroll() {
     const background = document.getElementById("background");
@@ -25,10 +30,11 @@ const CROUCH_IMAGE = "images/Crouched_Sprinter_Bucky.png";
 
 // Physics values
 let velocityY = 0;
-const GRAVITY = 0.3;
-const JUMP_VELOCITY = 12.0;
-const FALL_MULTIPLIER = 1.0;
+const GRAVITY = 1400; // pixels per second squared
+const JUMP_VELOCITY = 550; // pixels per second
+const FALL_MULTIPLIER = 2.0;
 let positionY = 0;
+let lastTime = 0;
 
 // Start game
 function startGame() {
@@ -37,6 +43,10 @@ function startGame() {
     gameStarted = true;
     menu.style.display = "none";
     gameScreen.style.display = "block";
+
+    //Force immediate obstacle spawn
+    spawnTimer = 0;
+
     startBackgroundScroll();
     requestAnimationFrame(gameLoop);
 }
@@ -91,6 +101,59 @@ function crouch(crouching) {
     }
 }
 
+// Helper: create and register an obstacle element
+function createObstacle(id, alt, bottomOffset) {
+    const el = document.createElement("img");
+    el.src = "images/Cannonball obstacle.png";
+    el.alt = alt;
+    el.id = id;
+
+    // Position off-screen to the right
+    const startX = gameScreen.offsetWidth;
+    el.style.position = "absolute";
+    el.style.right = "auto";
+    el.style.bottom = bottomOffset;
+    el.style.left = startX + "px";
+
+    gameScreen.appendChild(el);
+
+    // Track it
+    activeObstacles.push({ el, x: startX });
+}
+
+function spawnObstacles() {
+    const isTop = Math.random() < 0.5;
+
+    if (isTop) {
+        console.log("Spawned Top Cannonball");
+        createObstacle("topCannonball", "Top Cannonball", "80px");
+    } else {
+        console.log("Spawned Bottom Cannonball");
+        createObstacle("bottomCannonball", "Bottom Cannonball", "0px");
+    }
+}
+
+// Move all active obstacles left; remove any that have scrolled off screen
+function updateObstacles(deltaTime) {
+    const moveAmount = OBSTACLE_SPEED * deltaTime;
+
+    for (let i = activeObstacles.length - 1; i >= 0; i--) {
+        const obstacle = activeObstacles[i];
+        obstacle.x -= moveAmount;
+        obstacle.el.style.left = obstacle.x + "px";
+
+        // Remove once fully off the left edge.
+        // offsetWidth can be 0 before the image loads, so fall back to 64px
+        // to prevent the obstacle being deleted prematurely.
+         const elWidth = obstacle.el.offsetWidth || 64;
+         if (obstacle.x + elWidth < -1000) {
+             obstacle.el.remove();
+             console.log(obstacle + " removed!");
+             activeObstacles.splice(i, 1);
+         }
+    }
+}
+
 // Crouch key handling (ArrowDown + Shift)
 document.addEventListener("keydown", function (event) {
     const isCrouchKey =
@@ -117,22 +180,41 @@ document.addEventListener("keyup", function (event) {
 });
 
 // Game loop (runs every frame)
-function gameLoop() {
-    updatePhysics();
+function gameLoop(timestamp) {
+    if (!lastTime) {
+        lastTime = timestamp;
+    }
+
+    const deltaTime = Math.min((timestamp - lastTime) / 1000, 0.05);
+    lastTime = timestamp;
+
+    // Controlled spawn timer
+    spawnTimer -= deltaTime;
+
+    if (spawnTimer <= 0) {
+        spawnObstacles();
+
+        // Random gap between spawns (in seconds)
+        spawnTimer = Math.random() * 1.5 + 0.8;
+    }
+
+    updateObstacles(deltaTime);
+    updatePhysics(deltaTime);
+
     requestAnimationFrame(gameLoop);
 }
 
 // Physics update
-function updatePhysics() {
+function updatePhysics(deltaTime) {
     // Apply gravity only while jumping
     if (isJumping) {
         if (velocityY > 0) {
-            velocityY -= GRAVITY; // going up
+            velocityY -= GRAVITY * deltaTime; // going up
         } else {
-            velocityY -= GRAVITY * FALL_MULTIPLIER; // faster fall
+            velocityY -= GRAVITY * FALL_MULTIPLIER * deltaTime; // falling
         }
 
-        positionY += velocityY;
+        positionY += velocityY * deltaTime;
 
         // Ground collision
         if (positionY <= 0) {
