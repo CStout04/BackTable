@@ -9,8 +9,7 @@ let ignoreFirstJump = true;
 let bgPosition = 0;
 let bgSpeed = 3;
 let bgInterval;
-let randTime = 0;
-let randSpawnMax = 800; // Sets max number for random value for obstacle spawn (Higher number = slower spawn rate)
+let spawnTimer = 0;
 
 // Obstacle tracking
 let activeObstacles = []; // Each entry: { el, x }
@@ -32,7 +31,7 @@ const CROUCH_IMAGE = "images/Crouched_Sprinter_Bucky.png";
 // Physics values
 let velocityY = 0;
 const GRAVITY = 1400; // pixels per second squared
-const JUMP_VELOCITY = 700; // pixels per second
+const JUMP_VELOCITY = 550; // pixels per second
 const FALL_MULTIPLIER = 2.0;
 let positionY = 0;
 let lastTime = 0;
@@ -44,6 +43,10 @@ function startGame() {
     gameStarted = true;
     menu.style.display = "none";
     gameScreen.style.display = "block";
+
+    //Force immediate obstacle spawn
+    spawnTimer = 0;
+
     startBackgroundScroll();
     requestAnimationFrame(gameLoop);
 }
@@ -119,14 +122,13 @@ function createObstacle(id, alt, bottomOffset) {
 }
 
 function spawnObstacles() {
-    if (randTime == 7) {
+    const isTop = Math.random() < 0.5;
+
+    if (isTop) {
         console.log("Spawned Top Cannonball");
-        // "Top" cannonball — higher up (duck to avoid)
         createObstacle("topCannonball", "Top Cannonball", "80px");
-    }
-    else if (randTime == 10) {
+    } else {
         console.log("Spawned Bottom Cannonball");
-        // "Bottom" cannonball — ground level (jump to avoid)
         createObstacle("bottomCannonball", "Bottom Cannonball", "0px");
     }
 }
@@ -186,11 +188,20 @@ function gameLoop(timestamp) {
 
     const deltaTime = Math.min((timestamp - lastTime) / 1000, 0.05);
     lastTime = timestamp;
-    
-    randTime = Math.floor((Math.random() * randSpawnMax) + 1);
-    spawnObstacles();
+
+    // Controlled spawn timer
+    spawnTimer -= deltaTime;
+
+    if (spawnTimer <= 0) {
+        spawnObstacles();
+
+        // Random gap between spawns (in seconds)
+        spawnTimer = Math.random() * 1.5 + 0.8;
+    }
+
     updateObstacles(deltaTime);
     updatePhysics(deltaTime);
+
     requestAnimationFrame(gameLoop);
 }
 
