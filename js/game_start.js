@@ -10,7 +10,11 @@ let bgPosition = 0;
 let bgSpeed = 3;
 let bgInterval;
 let spawnTimer = 0;
+let playerLives = 1;
+let isGameOver = false;
 
+//Lives display
+const livesDisplay = document.getElementById("livesDisplay");
 // Obstacle tracking
 let activeObstacles = []; // Each entry: { el, x }
 const OBSTACLE_SPEED = 300; // pixels per second (tweak to match bgSpeed feel)
@@ -247,26 +251,47 @@ function checkCollisions() {
  *
  * TODO: Deduct a life from the player's life counter here.
  */
+
 function onPlayerHit(obstacle) {
+    if (isGameOver) return;
+
     const obstacleType = obstacle.el.alt || obstacle.el.id || "Unknown obstacle";
     console.log(`[Collision] Player was hit by: ${obstacleType}`);
 
-    // ── PLACEHOLDER: life-loss logic ────────────────────────────────────────
-    // Example future implementation:
-    //
-    //   playerLives -= 1;
-    //   console.log(`[Lives] Lives remaining: ${playerLives}`);
-    //
-    //   if (playerLives <= 0) {
-    //       gameOver();
-    //   } else {
-    //       triggerInvincibilityFrames();
-    //   }
-    // ────────────────────────────────────────────────────────────────────────
+    obstacle.el.remove();
+    activeObstacles = activeObstacles.filter(o => o !== obstacle);
+
+    playerLives--;
+    livesDisplay.innerText = "Lives: " + playerLives;
+
+    if (playerLives <= 0) {
+        gameOver();
+    }
+}
+
+function gameOver() {
+    isGameOver = true;
+    gameStarted = false;
+
+    clearInterval(bgInterval);
+
+    const overlay = document.createElement("div");
+    overlay.id = "gameOverScreen";
+
+    overlay.innerHTML = `
+        <div>GAME OVER</div>
+        <button id="playAgainBtn">Play Again</button>
+    `;
+
+    gameScreen.appendChild(overlay);
+
+    // Hook up button
+    document.getElementById("playAgainBtn").addEventListener("click", resetGame);
 }
 
 // ── Game loop (runs every frame) ─────────────────────────────────────────────
 function gameLoop(timestamp) {
+    if (isGameOver) return;
     if (!lastTime) {
         lastTime = timestamp;
     }
@@ -289,6 +314,37 @@ function gameLoop(timestamp) {
     checkCollisions();
 
     requestAnimationFrame(gameLoop);
+}
+
+function resetGame() {
+    // Remove game over screen
+    const overlay = document.getElementById("gameOverScreen");
+    if (overlay) overlay.remove();
+
+    // Reset state
+    isGameOver = false;
+    gameStarted = false;
+    playerLives = 1;
+    livesDisplay.innerText = "Lives: " + playerLives;
+
+    // Reset player
+    positionY = 0;
+    velocityY = 0;
+    isJumping = false;
+    isCrouching = false;
+    charStart.style.transform = "translateY(0px)";
+    setStandingSprite();
+
+    // Remove all obstacles
+    activeObstacles.forEach(o => o.el.remove());
+    activeObstacles = [];
+
+    // Reset timers
+    spawnTimer = 0;
+    lastTime = 0;
+
+    // Restart game
+    startGame();
 }
 
 // Physics update
@@ -320,3 +376,4 @@ function updatePhysics(deltaTime) {
     // Apply movement
     charStart.style.transform = `translateY(${-positionY}px)`;
 }
+
