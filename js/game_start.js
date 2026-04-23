@@ -1,6 +1,7 @@
 const menu = document.getElementById("menu");
 const gameScreen = document.getElementById("gameScreen");
 const charStart = document.getElementById("Bucky");
+const charStartRunning = document.getElementById("RunningBucky");
 
 let gameStarted = false;
 let isJumping = false;
@@ -10,6 +11,7 @@ let bgPosition = 0;
 let bgSpeed = 3;
 let bgInterval;
 let spawnTimer = 0;
+let gifScale = .8; //Set gif image scale
 
 // Obstacle tracking
 let activeObstacles = []; // Each entry: { el, x }
@@ -27,6 +29,7 @@ function startBackgroundScroll() {
 // Image paths
 const STANDING_IMAGE = "images/Sprinter Bucky.png";
 const CROUCH_IMAGE = "images/Crouched_Sprinter_Bucky.png";
+const RUNNING_IMAGE = "images/Running Sprinter.gif";
 
 // Physics values
 let velocityY = 0;
@@ -47,16 +50,31 @@ function startGame() {
     //Force immediate obstacle spawn
     spawnTimer = 0;
 
+    setRunningSprite();
     startBackgroundScroll();
     requestAnimationFrame(gameLoop);
 }
 
 function setStandingSprite() {
+    charStartRunning.style.display = "none";
+    charStart.style.display = "block";
     charStart.src = STANDING_IMAGE;
+    charStartRunning.src = "";
+}
+
+function setRunningSprite() {
+    charStart.style.display = "none";
+    charStartRunning.style.display = "block";
+    charStartRunning.src = RUNNING_IMAGE;
+    applyGifTransform();
+    charStart.src = "";
 }
 
 function setCrouchSprite() {
+    charStartRunning.style.display = "none";
+    charStart.style.display = "block";
     charStart.src = CROUCH_IMAGE;
+    charStartRunning.src = "";
 }
 
 // Start key
@@ -97,7 +115,7 @@ function crouch(crouching) {
     if (isCrouching) {
         setCrouchSprite();
     } else {
-        setStandingSprite();
+        setRunningSprite();
     }
 }
 
@@ -134,6 +152,7 @@ function spawnObstacles() {
     }
 
     const isTop = Math.random() < 0.5;
+    console.log("Number is: "  + isTop);
 
     if (isTop) {
         console.log("Spawned Top Cannonball");
@@ -163,6 +182,15 @@ function updateObstacles(deltaTime) {
             obstacle.el.remove();
             activeObstacles.splice(i, 1);
         }
+        // Remove once fully off the left edge.
+        // offsetWidth can be 0 before the image loads, so fall back to 64px
+        // to prevent the obstacle being deleted prematurely.
+         const elWidth = obstacle.el.offsetWidth || 64;
+         if (obstacle.x + elWidth < -1000) {
+             obstacle.el.remove();
+             console.log(obstacle + " removed!");
+             activeObstacles.splice(i, 1);
+         }
     }
 }
 
@@ -209,7 +237,7 @@ function gameLoop(timestamp) {
         // Random gap between spawns (in seconds)
         spawnTimer = Math.random() * 0.8 + 1.0;
     }
-
+    
     updateObstacles(deltaTime);
     updatePhysics(deltaTime);
 
@@ -237,11 +265,19 @@ function updatePhysics(deltaTime) {
             if (isCrouching) {
                 setCrouchSprite();
             } else {
-                setStandingSprite();
+                setRunningSprite();
             }
         }
     }
 
     // Apply movement
+    applyTransform();
+}
+
+function applyTransform() {
     charStart.style.transform = `translateY(${-positionY}px)`;
+}
+
+function applyGifTransform() {
+    charStartRunning.style.transform = `translateY(${-positionY}px) scale(${gifScale})`;
 }
