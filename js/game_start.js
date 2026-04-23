@@ -140,6 +140,17 @@ function createObstacle(id, alt, bottomOffset) {
 }
 
 function spawnObstacles() {
+    // Prevent spawning too close to previous obstacle
+    if (activeObstacles.length > 0) {
+        const last = activeObstacles[activeObstacles.length - 1];
+
+        const MIN_DISTANCE = 300; // adjust if needed
+
+        if (gameScreen.offsetWidth - last.x < MIN_DISTANCE) {
+            return; // skip spawn if too close
+        }
+    }
+
     const isTop = Math.random() < 0.5;
     console.log("Number is: "  + isTop);
 
@@ -156,11 +167,21 @@ function spawnObstacles() {
 function updateObstacles(deltaTime) {
     const moveAmount = OBSTACLE_SPEED * deltaTime;
 
+    const screenRect = gameScreen.getBoundingClientRect();
+
     for (let i = activeObstacles.length - 1; i >= 0; i--) {
         const obstacle = activeObstacles[i];
+
         obstacle.x -= moveAmount;
         obstacle.el.style.left = obstacle.x + "px";
 
+        const rect = obstacle.el.getBoundingClientRect();
+
+        // true screen-based removal
+        if (rect.right < screenRect.left) {
+            obstacle.el.remove();
+            activeObstacles.splice(i, 1);
+        }
         // Remove once fully off the left edge.
         // offsetWidth can be 0 before the image loads, so fall back to 64px
         // to prevent the obstacle being deleted prematurely.
@@ -214,7 +235,7 @@ function gameLoop(timestamp) {
         spawnObstacles();
 
         // Random gap between spawns (in seconds)
-        spawnTimer = Math.random() * 1.5 + 0.8;
+        spawnTimer = Math.random() * 0.8 + 1.0;
     }
     
     updateObstacles(deltaTime);
