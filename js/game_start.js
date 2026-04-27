@@ -11,8 +11,12 @@ let bgPosition = 0;
 let bgSpeed = 3;
 let bgInterval;
 let spawnTimer = 0;
+let playerLives = 1;
+let isGameOver = false;
 let gifScale = .8; //Set gif image scale
 
+//Lives display
+const livesDisplay = document.getElementById("livesDisplay");
 // Obstacle tracking
 let activeObstacles = []; // Each entry: { el, x }
 const OBSTACLE_SPEED = 300; // pixels per second (tweak to match bgSpeed feel)
@@ -219,8 +223,115 @@ document.addEventListener("keyup", function (event) {
     crouch(false);
 });
 
-// Game loop (runs every frame)
+// ─── Collision Detection ────────────────────────────────────────────────────
+
+/**
+ * Called once per frame to test whether the player's bounding box overlaps
+ * any active obstacle's bounding box.
+ *
+ * Bottom cannonball (bottom: "0px")  → crouching avoids it  (player must duck)
+ * Top cannonball    (bottom: "80px") → jumping avoids it    (player must jump)
+ *
+ * A small inset (HITBOX_SHRINK) is applied to each edge so the boxes are
+ * slightly tighter than the raw sprite rectangles, keeping the feel fair.
+ */
+function checkCollisions() {
+    const PLAYER_SHRINK = 70;
+    const OBSTACLE_SHRINK = 20;
+
+    const charRect = charStart.getBoundingClientRect();
+
+    let playerLeft, playerRight, playerTop, playerBottom;
+
+    if (isCrouching) {  
+        // Smaller + lower hitbox when crouching
+        playerLeft   = charRect.left + PLAYER_SHRINK;
+        playerRight  = charRect.right - PLAYER_SHRINK;
+
+        // Push the top DOWN so you can fit under obstacles
+        playerTop    = charRect.top + PLAYER_SHRINK + 40;
+
+        // Keep feet grounded (slight trim only)
+        playerBottom = charRect.bottom - 10;
+    } else {
+           // Your original hitbox (unchanged)
+        playerLeft   = charRect.left + PLAYER_SHRINK;
+        playerRight  = charRect.right - PLAYER_SHRINK;
+        playerTop    = charRect.top + PLAYER_SHRINK;
+        playerBottom = charRect.bottom - PLAYER_SHRINK;
+    }
+
+    for (const obstacle of activeObstacles) {
+        const obsRect = obstacle.el.getBoundingClientRect();
+
+        if (obsRect.width === 0 || obsRect.height === 0) continue;
+
+        const obsLeft   = obsRect.left + OBSTACLE_SHRINK;
+        const obsRight  = obsRect.right - OBSTACLE_SHRINK;
+        const obsTop    = obsRect.top + OBSTACLE_SHRINK;
+        const obsBottom = obsRect.bottom - OBSTACLE_SHRINK;
+
+        const overlapping =
+            playerRight > obsLeft &&
+            playerLeft < obsRight &&
+            playerBottom > obsTop &&
+            playerTop < obsBottom;
+
+        if (overlapping) {
+            onPlayerHit(obstacle);
+            return;
+        }
+    }
+}
+
+/**
+ * Fires when the player collides with an obstacle.
+ *
+ * @param {Object} obstacle - The obstacle entry ({ el, x }) that was hit.
+ *
+ * TODO: Deduct a life from the player's life counter here.
+ */
+
+function onPlayerHit(obstacle) {
+    if (isGameOver) return;
+
+    const obstacleType = obstacle.el.alt || obstacle.el.id || "Unknown obstacle";
+    console.log(`[Collision] Player was hit by: ${obstacleType}`);
+
+    obstacle.el.remove();
+    activeObstacles = activeObstacles.filter(o => o !== obstacle);
+
+    playerLives--;
+    livesDisplay.innerText = "Lives: " + playerLives;
+
+    if (playerLives <= 0) {
+        gameOver();
+    }
+}
+
+function gameOver() {
+    isGameOver = true;
+    gameStarted = false;
+
+    clearInterval(bgInterval);
+
+    const overlay = document.createElement("div");
+    overlay.id = "gameOverScreen";
+
+    overlay.innerHTML = `
+        <div>GAME OVER</div>
+        <button id="playAgainBtn">Play Again</button>
+    `;
+
+    gameScreen.appendChild(overlay);
+
+    // Hook up button
+    document.getElementById("playAgainBtn").addEventListener("click", resetGame);
+}
+
+// ── Game loop (runs every frame) ─────────────────────────────────────────────
 function gameLoop(timestamp) {
+    if (isGameOver) return;
     if (!lastTime) {
         lastTime = timestamp;
     }
@@ -240,8 +351,40 @@ function gameLoop(timestamp) {
     
     updateObstacles(deltaTime);
     updatePhysics(deltaTime);
+    checkCollisions();
 
     requestAnimationFrame(gameLoop);
+}
+
+function resetGame() {
+    // Remove game over screen
+    const overlay = document.getElementById("gameOverScreen");
+    if (overlay) overlay.remove();
+
+    // Reset state
+    isGameOver = false;
+    gameStarted = false;
+    playerLives = 1;
+    livesDisplay.innerText = "Lives: " + playerLives;
+
+    // Reset player
+    positionY = 0;
+    velocityY = 0;
+    isJumping = false;
+    isCrouching = false;
+    charStart.style.transform = "translateY(0px)";
+    setStandingSprite();
+
+    // Remove all obstacles
+    activeObstacles.forEach(o => o.el.remove());
+    activeObstacles = [];
+
+    // Reset timers
+    spawnTimer = 0;
+    lastTime = 0;
+
+    // Restart game
+    startGame();
 }
 
 // Physics update
