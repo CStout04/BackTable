@@ -88,6 +88,12 @@ document.addEventListener("keydown", function (event) {
     if (!isStartKey) return;
 
     event.preventDefault();
+
+    if (isGameOver) {
+        resetGame();
+        return;
+    }
+
     startGame();
 });
 
@@ -101,7 +107,7 @@ document.addEventListener("keydown", function (event) {
     }
 
     // Prevent jumping while crouching
-    if (!isJumpKey || !gameStarted || isJumping || isCrouching) return;
+    if (!isJumpKey || !gameStarted || isJumping || isCrouching || isGameOver) return;
 
     event.preventDefault();
     isJumping = true;
@@ -236,29 +242,31 @@ document.addEventListener("keyup", function (event) {
  * slightly tighter than the raw sprite rectangles, keeping the feel fair.
  */
 function checkCollisions() {
-    const PLAYER_SHRINK = 70;
+    const PLAYER_SHRINK = 55;
     const OBSTACLE_SHRINK = 20;
 
-    const charRect = charStart.getBoundingClientRect();
+    // Get the active character's bounding box (running or crouching)
+    const activeChar = charStartRunning.style.display !== "none" ? charStartRunning : charStart;
+    const charRect = activeChar.getBoundingClientRect();
 
     let playerLeft, playerRight, playerTop, playerBottom;
 
     if (isCrouching) {  
-        // Smaller + lower hitbox when crouching
+        // Hitbox while crouching
         playerLeft   = charRect.left + PLAYER_SHRINK;
         playerRight  = charRect.right - PLAYER_SHRINK;
 
         // Push the top DOWN so you can fit under obstacles
-        playerTop    = charRect.top + PLAYER_SHRINK + 40;
+        playerTop    = charRect.top + PLAYER_SHRINK + 30;
 
         // Keep feet grounded (slight trim only)
         playerBottom = charRect.bottom - 10;
     } else {
-           // Your original hitbox (unchanged)
+        // Regular hitbox when standing/jumping
         playerLeft   = charRect.left + PLAYER_SHRINK;
         playerRight  = charRect.right - PLAYER_SHRINK;
         playerTop    = charRect.top + PLAYER_SHRINK;
-        playerBottom = charRect.bottom - PLAYER_SHRINK;
+        playerBottom = charRect.bottom - PLAYER_SHRINK + 15;
     }
 
     for (const obstacle of activeObstacles) {
@@ -382,6 +390,8 @@ function resetGame() {
     // Reset timers
     spawnTimer = 0;
     lastTime = 0;
+
+    ignoreFirstJump = true;
 
     // Restart game
     startGame();
