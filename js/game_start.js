@@ -2,6 +2,9 @@ const menu = document.getElementById("menu");
 const gameScreen = document.getElementById("gameScreen");
 const charStart = document.getElementById("Bucky");
 const charStartRunning = document.getElementById("RunningBucky");
+const heartImg1 = document.getElementById("heart1");
+const heartImg2 = document.getElementById("heart2");
+const heartImg3 = document.getElementById("heart3");
 
 let gameStarted = false;
 let isJumping = false;
@@ -11,7 +14,7 @@ let bgPosition = 0;
 let bgSpeed = 3;
 let bgInterval;
 let spawnTimer = 0;
-let playerLives = 1;
+let playerLives = 3;
 let isGameOver = false;
 let gifScale = .8; //Set gif image scale
 
@@ -309,11 +312,21 @@ function onPlayerHit(obstacle) {
     obstacle.el.remove();
     activeObstacles = activeObstacles.filter(o => o !== obstacle);
 
-    playerLives--;
-    livesDisplay.innerText = "Lives: " + playerLives;
+    switch (playerLives) {
+        case 3:
+            heartImg3.style.display = "none";
+            playerLives--;
+            break;
+        
+        case 2:
+            heartImg2.style.display = "none";
+            playerLives--;
+            break;
 
-    if (playerLives <= 0) {
-        gameOver();
+        default:
+            heartImg1.style.display = "none";
+            playerLives--;
+            gameOver();
     }
 }
 
@@ -372,8 +385,10 @@ function resetGame() {
     // Reset state
     isGameOver = false;
     gameStarted = false;
-    playerLives = 1;
-    livesDisplay.innerText = "Lives: " + playerLives;
+    playerLives = 3;
+    heartImg1.style.display = "block";
+    heartImg2.style.display = "block";
+    heartImg3.style.display = "block";
 
     // Reset player
     positionY = 0;
