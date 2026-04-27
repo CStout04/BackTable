@@ -96,11 +96,6 @@ body {
     display: none;
 }
 
-
-img {
-    width: 125px;
-}
-
 #gameScreen {
     position: relative;
     height: 100vh;
@@ -121,6 +116,7 @@ img {
     transform: translateY(0px);
     transition: padding-bottom .5s ease-out;
     z-index: 5;
+    will-change: transform;
 }
 
 #bottomCannonball {

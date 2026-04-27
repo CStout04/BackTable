@@ -1,6 +1,7 @@
 const menu = document.getElementById("menu");
 const gameScreen = document.getElementById("gameScreen");
 const charStart = document.getElementById("Bucky");
+const charStartRunning = document.getElementById("RunningBucky");
 
 let gameStarted = false;
 let isJumping = false;
@@ -12,6 +13,7 @@ let bgInterval;
 let spawnTimer = 0;
 let playerLives = 1;
 let isGameOver = false;
+let gifScale = .8; //Set gif image scale
 
 //Lives display
 const livesDisplay = document.getElementById("livesDisplay");
@@ -31,6 +33,7 @@ function startBackgroundScroll() {
 // Image paths
 const STANDING_IMAGE = "images/Sprinter Bucky.png";
 const CROUCH_IMAGE = "images/Crouched_Sprinter_Bucky.png";
+const RUNNING_IMAGE = "images/Running Sprinter.gif";
 
 // Physics values
 let velocityY = 0;
@@ -51,16 +54,31 @@ function startGame() {
     //Force immediate obstacle spawn
     spawnTimer = 0;
 
+    setRunningSprite();
     startBackgroundScroll();
     requestAnimationFrame(gameLoop);
 }
 
 function setStandingSprite() {
+    charStartRunning.style.display = "none";
+    charStart.style.display = "block";
     charStart.src = STANDING_IMAGE;
+    charStartRunning.src = "";
+}
+
+function setRunningSprite() {
+    charStart.style.display = "none";
+    charStartRunning.style.display = "block";
+    charStartRunning.src = RUNNING_IMAGE;
+    applyGifTransform();
+    charStart.src = "";
 }
 
 function setCrouchSprite() {
+    charStartRunning.style.display = "none";
+    charStart.style.display = "block";
     charStart.src = CROUCH_IMAGE;
+    charStartRunning.src = "";
 }
 
 // Start key
@@ -101,7 +119,7 @@ function crouch(crouching) {
     if (isCrouching) {
         setCrouchSprite();
     } else {
-        setStandingSprite();
+        setRunningSprite();
     }
 }
 
@@ -126,7 +144,19 @@ function createObstacle(id, alt, bottomOffset) {
 }
 
 function spawnObstacles() {
+    // Prevent spawning too close to previous obstacle
+    if (activeObstacles.length > 0) {
+        const last = activeObstacles[activeObstacles.length - 1];
+
+        const MIN_DISTANCE = 300; // adjust if needed
+
+        if (gameScreen.offsetWidth - last.x < MIN_DISTANCE) {
+            return; // skip spawn if too close
+        }
+    }
+
     const isTop = Math.random() < 0.5;
+    console.log("Number is: "  + isTop);
 
     if (isTop) {
         console.log("Spawned Top Cannonball");
@@ -141,11 +171,21 @@ function spawnObstacles() {
 function updateObstacles(deltaTime) {
     const moveAmount = OBSTACLE_SPEED * deltaTime;
 
+    const screenRect = gameScreen.getBoundingClientRect();
+
     for (let i = activeObstacles.length - 1; i >= 0; i--) {
         const obstacle = activeObstacles[i];
+
         obstacle.x -= moveAmount;
         obstacle.el.style.left = obstacle.x + "px";
 
+        const rect = obstacle.el.getBoundingClientRect();
+
+        // true screen-based removal
+        if (rect.right < screenRect.left) {
+            obstacle.el.remove();
+            activeObstacles.splice(i, 1);
+        }
         // Remove once fully off the left edge.
         // offsetWidth can be 0 before the image loads, so fall back to 64px
         // to prevent the obstacle being deleted prematurely.
@@ -306,9 +346,9 @@ function gameLoop(timestamp) {
         spawnObstacles();
 
         // Random gap between spawns (in seconds)
-        spawnTimer = Math.random() * 1.5 + 0.8;
+        spawnTimer = Math.random() * 0.8 + 1.0;
     }
-
+    
     updateObstacles(deltaTime);
     updatePhysics(deltaTime);
     checkCollisions();
@@ -368,12 +408,19 @@ function updatePhysics(deltaTime) {
             if (isCrouching) {
                 setCrouchSprite();
             } else {
-                setStandingSprite();
+                setRunningSprite();
             }
         }
     }
 
     // Apply movement
+    applyTransform();
+}
+
+function applyTransform() {
     charStart.style.transform = `translateY(${-positionY}px)`;
 }
 
+function applyGifTransform() {
+    charStartRunning.style.transform = `translateY(${-positionY}px) scale(${gifScale})`;
+}
