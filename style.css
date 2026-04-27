@@ -157,10 +157,7 @@ h2 {
 
 #livesDisplay {
     position: absolute;
-    top: 10px;
-    left: 20px;
-    font-size: 24px;
-    color: white;
+    top: -2.6rem;
     z-index: 10; 
 }
 
@@ -195,4 +192,21 @@ h2 {
 #gameOverScreen button:hover {
     background-color: #e6b800;
     transform: scale(1.05);
+}
+
+#heart1 {
+    margin: 0;
+    scale: 40%;
+}
+
+#heart2 {
+    padding-left: 4rem;
+    margin: 0;
+    scale: 40%;
+}
+
+#heart3 {
+    padding-left: 8rem;
+    margin: 0;
+    scale: 40%;
 }
