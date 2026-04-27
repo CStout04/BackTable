@@ -88,6 +88,12 @@ document.addEventListener("keydown", function (event) {
     if (!isStartKey) return;
 
     event.preventDefault();
+
+    if (isGameOver) {
+        resetGame();
+        return;
+    }
+
     startGame();
 });
 
@@ -382,6 +388,8 @@ function resetGame() {
     // Reset timers
     spawnTimer = 0;
     lastTime = 0;
+
+    ignoreFirstJump = true;
 
     // Restart game
     startGame();
